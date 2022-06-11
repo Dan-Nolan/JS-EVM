@@ -1,5 +1,6 @@
 const Memory = require('./Memory');
 const Stack = require('./Stack');
+const Calldata = require('./Calldata');
 const { INSTRUCTIONS_BY_NAME } =  require('./instructions');
 
 function validJumpDestinations(code) {
@@ -17,10 +18,11 @@ function validJumpDestinations(code) {
 }
 
 class ExecutionContext {
-    constructor(code, pc = 0, stack = new Stack(), memory = new Memory()) {
+    constructor(code, calldata = new Calldata(), pc = 0, stack = new Stack(), memory = new Memory()) {
         this.code = code;
         this.stack = stack;
         this.memory = memory;
+        this.calldata = calldata;
         this.pc = pc;
         this.stopped = false;
         this.returndata = null;

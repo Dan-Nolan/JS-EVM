@@ -1,8 +1,10 @@
+const fs = require('fs');
 const ExecutionContext = require('./ExecutionContext');
+const Calldata = require('./Calldata');
 const {decodeOpcode, INSTRUCTIONS_BY_NAME} = require('./instructions');
 
-function run(code, maxInstructions) {
-    const context = new ExecutionContext(code);
+function run(code, calldata, maxInstructions) {
+    const context = new ExecutionContext(code, calldata);
 
     let i = 0;
     while (!context.stopped) {
@@ -16,12 +18,14 @@ function run(code, maxInstructions) {
 
         i++;
         if(i === maxInstructions) {
-            console.log("Max Instructions Reached.")
+            console.log("Max Instructions Reached.");
             return;
         }
     }
-
-    console.log(`Output: 0x${context.returndata.toString('hex')}`);
+    
+    const returndata = context.returndata;
+    const hexreturn = returndata ? `0x${returndata.toString('hex')}` : "0x";
+    console.log(`Output: ${hexreturn}`);
 }
 
 function padByteStr(val = "") {
@@ -44,36 +48,5 @@ function assemble(code) {
     return bytecode;
 }
 
-run(assemble(
-    `
-PUSH1 4
-DUP1
-PUSH1 0
-
-JUMPDEST
-DUP2
-PUSH1 18
-JUMPI 
-
-PUSH1 0
-MSTORE8
-PUSH1 1
-PUSH1 0
-RETURN
-
-JUMPDEST
-
-DUP3
-ADD
-
-SWAP1
-PUSH1 1
-SWAP1
-SUB
-
-SWAP1
-
-PUSH1 5
-JUMP
-    `
-));
+const assembly = fs.readFileSync("./assembly/scratch.easm").toString();
+run(assemble(assembly), new Calldata("1234"));

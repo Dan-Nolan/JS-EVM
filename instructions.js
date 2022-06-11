@@ -31,6 +31,33 @@ registerInstruction(0x02, "MUL", (ctx) => {
 registerInstruction(0x03, "SUB", (ctx) => {
     ctx.stack.push(mod256(ctx.stack.pop() - ctx.stack.pop()));
 });
+registerInstruction(0x10, "LT", (ctx) => {
+    const [a,b] = [ctx.stack.pop(), ctx.stack.pop()];
+    ctx.stack.push(a < b ? 1 : 0);
+});
+registerInstruction(0x11, "GT", (ctx) => {
+    const [a,b] = [ctx.stack.pop(), ctx.stack.pop()];
+    ctx.stack.push(a > b ? 1 : 0);
+});
+registerInstruction(0x14, "EQ", (ctx) => {
+    const [a,b] = [ctx.stack.pop(), ctx.stack.pop()];
+    ctx.stack.push(a === b ? 1 : 0);
+});
+registerInstruction(0x15, "ISZERO", (ctx) => {
+    const a = ctx.stack.pop();
+    ctx.stack.push(a === 0 ? 1 : 0);
+});
+registerInstruction(0x1c, "SHR", (ctx) => {
+    const [a,b] = [ctx.stack.pop(), ctx.stack.pop()];
+    ctx.stack.push(b >> a);
+});
+registerInstruction(0x1b, "SHL", (ctx) => {
+    const [a,b] = [ctx.stack.pop(), ctx.stack.pop()];
+    ctx.stack.push(b << a);
+});
+registerInstruction(0x50, "POP", (ctx) => {
+    ctx.stack.pop();
+});
 registerInstruction(0x53, "MSTORE8", (ctx) => {
     ctx.memory.store(ctx.stack.pop(), ctx.stack.pop() % 256);
 });
@@ -55,6 +82,12 @@ registerInstruction(0x57, "JUMPI", (ctx) => {
     }
 });
 registerInstruction(0x5b, "JUMPDEST", () => { /* nothing! */ });
+registerInstruction(0x35, "CALLDATALOAD", (ctx) => {
+    ctx.stack.push(ctx.calldata.readWord(ctx.stack.pop()));
+});
+registerInstruction(0x36, "CALLDATASIZE", (ctx) => {
+    ctx.stack.push(ctx.calldata.length());
+});
 
 function mod256(num) {
     return parseInt(BigInt(num) % 2n ** 256n);
